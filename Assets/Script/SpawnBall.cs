@@ -5,11 +5,17 @@ using UnityEngine;
 public class SpawnBall : MonoBehaviour
 {
     public GameObject ballPrefab;
+    private MovingRing movingRing_Script;
+    private GameManager gameManager_Script;
     public List<GameObject> balls;
+    float initialTime = 0;
+    float spawnBallthreshold = 1f;
 
     private void Awake()
     {
-        for (int i = 0; i < 9; i++)
+        movingRing_Script = FindObjectOfType<MovingRing>();
+        gameManager_Script = FindObjectOfType<GameManager>();
+        for (int i = 0; i < 4; i++)
         {
             GameObject temp = Instantiate(ballPrefab, transform.position, Quaternion.identity);
             balls.Add(temp);
@@ -19,8 +25,13 @@ public class SpawnBall : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.F))
+        if(Input.GetKeyDown(KeyCode.F) && initialTime < Time.time && (gameManager_Script.ballRemain >= 1))
         {
+
+            movingRing_Script.rotateSpeed += 10;
+
+            gameManager_Script.ballRemainText.text = (--gameManager_Script.ballRemain).ToString("00");
+            initialTime = Time.time + spawnBallthreshold;
             for(int i = 0; i < balls.Count; i++)
             {
                 if (!balls[i].activeInHierarchy)
@@ -30,6 +41,9 @@ public class SpawnBall : MonoBehaviour
                     break;
                 }
             }
+
+            if (gameManager_Script.ballRemain == 0)
+                gameManager_Script.Invoke("Result", 2f);
         }
     }
 }
